@@ -15,10 +15,13 @@ export default function StreakBadge({ label, value }: StreakBadgeProps) {
     <View
       style={[
         styles.badge,
-        { backgroundColor: isDark ? '#1E293B' : '#E2E8F0', borderColor: isDark ? '#334155' : '#CBD5F5' },
+        {
+          backgroundColor: isDark ? '#111827' : '#F1F5F9',
+          borderColor: isDark ? '#1F2937' : '#E2E8F0',
+        },
       ]}
     >
-      <Text style={[styles.label, { color: isDark ? '#CBD5F5' : '#475569' }]}>{label}</Text>
+      <Text style={[styles.label, { color: isDark ? '#94A3B8' : '#64748B' }]}>{label}</Text>
       <Text style={[styles.value, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>{value}</Text>
     </View>
   );
@@ -40,7 +43,8 @@ const styles = StyleSheet.create({
     letterSpacing: 0.5,
   },
   value: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '700',
+    marginTop: 2,
   },
 });

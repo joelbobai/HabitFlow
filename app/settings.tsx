@@ -38,18 +38,39 @@ export default function SettingsScreen() {
 
   return (
     <View style={[styles.container, { backgroundColor: isDark ? '#020617' : '#F8FAFC' }]}>
-      <Text style={[styles.title, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>Settings</Text>
-      <View style={[styles.card, { backgroundColor: isDark ? '#0F172A' : '#FFFFFF' }]}>
-        <Text style={[styles.label, { color: isDark ? '#CBD5F5' : '#64748B' }]}>Total habits</Text>
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>Settings</Text>
+        <Text style={[styles.subtitle, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+          Personalize and keep your data tidy.
+        </Text>
+      </View>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: isDark ? '#0B1220' : '#FFFFFF',
+            borderColor: isDark ? '#1E293B' : '#E2E8F0',
+          },
+        ]}
+      >
+        <Text style={[styles.label, { color: isDark ? '#94A3B8' : '#64748B' }]}>Total habits</Text>
         <Text style={[styles.value, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>{habits.length}</Text>
       </View>
-      <View style={[styles.card, { backgroundColor: isDark ? '#0F172A' : '#FFFFFF' }]}>
-        <Text style={[styles.label, { color: isDark ? '#CBD5F5' : '#64748B' }]}>Offline storage</Text>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: isDark ? '#0B1220' : '#FFFFFF',
+            borderColor: isDark ? '#1E293B' : '#E2E8F0',
+          },
+        ]}
+      >
+        <Text style={[styles.label, { color: isDark ? '#94A3B8' : '#64748B' }]}>Offline storage</Text>
         <Text style={[styles.value, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>
           Stored only on this device.
         </Text>
       </View>
-      <Pressable style={[styles.resetButton, { backgroundColor: '#EF4444' }]} onPress={handleReset}>
+      <Pressable style={[styles.resetButton, { backgroundColor: isDark ? '#DC2626' : '#EF4444' }]} onPress={handleReset}>
         <Text style={styles.resetText}>Reset all data</Text>
       </Pressable>
     </View>
@@ -61,15 +82,27 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
   },
+  header: {
+    marginBottom: 20,
+  },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    marginBottom: 20,
+  },
+  subtitle: {
+    marginTop: 6,
+    fontSize: 14,
   },
   card: {
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
   label: {
     fontSize: 12,
@@ -83,7 +116,7 @@ const styles = StyleSheet.create({
   },
   resetButton: {
     marginTop: 20,
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
   },
