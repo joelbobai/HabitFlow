@@ -55,14 +55,41 @@ export default function CalendarScreen() {
         { backgroundColor: isDark ? '#020617' : '#F8FAFC' },
       ]}
     >
-      <Text style={[styles.title, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>{monthLabel}</Text>
-      {habits.length === 0 ? (
-        <Text style={[styles.emptyText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
-          No habits to display yet.
+      <View style={styles.header}>
+        <Text style={[styles.title, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>{monthLabel}</Text>
+        <Text style={[styles.subtitle, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+          Tap into the big picture of your consistency.
         </Text>
+      </View>
+      {habits.length === 0 ? (
+        <View
+          style={[
+            styles.emptyCard,
+            {
+              backgroundColor: isDark ? '#0B1220' : '#FFFFFF',
+              borderColor: isDark ? '#1E293B' : '#E2E8F0',
+            },
+          ]}
+        >
+          <Text style={[styles.emptyTitle, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>
+            No habits to display
+          </Text>
+          <Text style={[styles.emptyText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+            Add a habit to see your streaks on the calendar.
+          </Text>
+        </View>
       ) : (
         habits.map((habit) => (
-          <View key={habit.id} style={[styles.card, { backgroundColor: isDark ? '#0F172A' : '#FFFFFF' }]}>
+          <View
+            key={habit.id}
+            style={[
+              styles.card,
+              {
+                backgroundColor: isDark ? '#0B1220' : '#FFFFFF',
+                borderColor: isDark ? '#1E293B' : '#E2E8F0',
+              },
+            ]}
+          >
             <Text style={[styles.habitName, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>{habit.name}</Text>
             <View style={styles.weekRow}>
               {WEEKDAYS.map((day) => (
@@ -84,8 +111,13 @@ export default function CalendarScreen() {
                     key={`${habit.id}-${dateString}`}
                     style={[
                       styles.dayCell,
+                      {
+                        borderColor: isDark ? '#1F2937' : '#E2E8F0',
+                        backgroundColor: isDark ? '#0F172A' : '#F8FAFC',
+                      },
                       isCompleted && {
                         backgroundColor: isDark ? '#38BDF8' : '#2563EB',
+                        borderColor: isDark ? '#38BDF8' : '#2563EB',
                       },
                     ]}
                   >
@@ -108,18 +140,27 @@ const styles = StyleSheet.create({
     padding: 20,
     minHeight: '100%',
   },
+  header: {
+    marginBottom: 16,
+  },
   title: {
     fontSize: 24,
     fontWeight: '700',
-    marginBottom: 16,
   },
-  emptyText: {
-    fontSize: 16,
+  subtitle: {
+    marginTop: 6,
+    fontSize: 14,
   },
   card: {
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 1,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
   habitName: {
     fontSize: 18,
@@ -147,9 +188,23 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: 'center',
     justifyContent: 'center',
+    borderWidth: 1,
   },
   dayText: {
     fontSize: 12,
     fontWeight: '600',
+  },
+  emptyCard: {
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+  },
+  emptyTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 6,
+  },
+  emptyText: {
+    fontSize: 14,
   },
 });

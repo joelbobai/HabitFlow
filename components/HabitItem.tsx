@@ -23,11 +23,29 @@ export default function HabitItem({
   const isDark = colorScheme === 'dark';
 
   return (
-    <View style={[styles.card, { backgroundColor: isDark ? '#0F172A' : '#FFFFFF' }]}>
+    <View
+      style={[
+        styles.card,
+        {
+          backgroundColor: isDark ? '#0B1220' : '#FFFFFF',
+          borderColor: isDark ? '#1E293B' : '#E2E8F0',
+        },
+      ]}
+    >
       <View style={styles.row}>
         <HabitCheckbox checked={completedToday} onToggle={onToggle} />
         <View style={styles.info}>
-          <Text style={[styles.name, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>{name}</Text>
+          <Text
+            style={[
+              styles.name,
+              {
+                color: isDark ? '#F8FAFC' : '#0F172A',
+                textDecorationLine: completedToday ? 'line-through' : 'none',
+              },
+            ]}
+          >
+            {name}
+          </Text>
           <View style={styles.streaks}>
             <StreakBadge label="Current" value={currentStreak} />
             <StreakBadge label="Best" value={longestStreak} />
@@ -40,14 +58,15 @@ export default function HabitItem({
 
 const styles = StyleSheet.create({
   card: {
-    borderRadius: 16,
+    borderRadius: 18,
     padding: 16,
     marginBottom: 12,
+    borderWidth: 1,
     shadowColor: '#000000',
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 3,
   },
   row: {
     flexDirection: 'row',
@@ -58,9 +77,9 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   name: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 12,
+    fontSize: 17,
+    fontWeight: '700',
+    marginBottom: 10,
   },
   streaks: {
     flexDirection: 'row',
