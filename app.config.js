@@ -19,7 +19,7 @@ export default {
     },
     edgeToEdgeEnabled: true,
     predictiveBackGestureEnabled: false,
-    package: "com.habitflowbob.habitflowbob",
+    package: "com.calebmarkus.habitflow",
   },
   web: {
     output: "static",
