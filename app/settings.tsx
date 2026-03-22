@@ -1,14 +1,18 @@
-import { useCallback, useState } from 'react';
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from "react";
+import { Alert, Pressable, StyleSheet, Text, View } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { clearHabits, loadHabits } from '@/storage/habitStorage';
-import { Habit } from '@/types/habit';
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import {
+  clearDailyNotes,
+  clearHabits,
+  loadHabits,
+} from "@/storage/habitStorage";
+import { Habit } from "@/types/habit";
 
 export default function SettingsScreen() {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = colorScheme === "dark";
   const [habits, setHabits] = useState<Habit[]>([]);
 
   const refreshHabits = useCallback(async () => {
@@ -23,24 +27,37 @@ export default function SettingsScreen() {
   );
 
   const handleReset = () => {
-    Alert.alert('Reset all data?', 'This will remove all habits and completion history.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Reset',
-        style: 'destructive',
-        onPress: async () => {
-          await clearHabits();
-          setHabits([]);
+    Alert.alert(
+      "Reset all data?",
+      "This will remove all habits, reflections, and completion history.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            await Promise.all([clearHabits(), clearDailyNotes()]);
+            setHabits([]);
+          },
         },
-      },
-    ]);
+      ],
+    );
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: isDark ? '#020617' : '#F8FAFC' }]}>
+    <View
+      style={[
+        styles.container,
+        { backgroundColor: isDark ? "#020617" : "#F8FAFC" },
+      ]}
+    >
       <View style={styles.header}>
-        <Text style={[styles.title, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>Settings</Text>
-        <Text style={[styles.subtitle, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+        <Text style={[styles.title, { color: isDark ? "#F8FAFC" : "#0F172A" }]}>
+          Settings
+        </Text>
+        <Text
+          style={[styles.subtitle, { color: isDark ? "#94A3B8" : "#64748B" }]}
+        >
           Personalize and keep your data tidy.
         </Text>
       </View>
@@ -48,29 +65,57 @@ export default function SettingsScreen() {
         style={[
           styles.card,
           {
-            backgroundColor: isDark ? '#0B1220' : '#FFFFFF',
-            borderColor: isDark ? '#1E293B' : '#E2E8F0',
+            backgroundColor: isDark ? "#0B1220" : "#FFFFFF",
+            borderColor: isDark ? "#1E293B" : "#E2E8F0",
           },
         ]}
       >
-        <Text style={[styles.label, { color: isDark ? '#94A3B8' : '#64748B' }]}>Total habits</Text>
-        <Text style={[styles.value, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>{habits.length}</Text>
+        <Text style={[styles.label, { color: isDark ? "#94A3B8" : "#64748B" }]}>
+          Total habits
+        </Text>
+        <Text style={[styles.value, { color: isDark ? "#F8FAFC" : "#0F172A" }]}>
+          {habits.length}
+        </Text>
       </View>
       <View
         style={[
           styles.card,
           {
-            backgroundColor: isDark ? '#0B1220' : '#FFFFFF',
-            borderColor: isDark ? '#1E293B' : '#E2E8F0',
+            backgroundColor: isDark ? "#0B1220" : "#FFFFFF",
+            borderColor: isDark ? "#1E293B" : "#E2E8F0",
           },
         ]}
       >
-        <Text style={[styles.label, { color: isDark ? '#94A3B8' : '#64748B' }]}>Offline storage</Text>
-        <Text style={[styles.value, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>
-          Stored only on this device.
+        <Text style={[styles.label, { color: isDark ? "#94A3B8" : "#64748B" }]}>
+          Offline storage
+        </Text>
+        <Text style={[styles.value, { color: isDark ? "#F8FAFC" : "#0F172A" }]}>
+          Habits and reflections stay only on this device.
         </Text>
       </View>
-      <Pressable style={[styles.resetButton, { backgroundColor: isDark ? '#DC2626' : '#EF4444' }]} onPress={handleReset}>
+      <View
+        style={[
+          styles.card,
+          {
+            backgroundColor: isDark ? "#0B1220" : "#FFFFFF",
+            borderColor: isDark ? "#1E293B" : "#E2E8F0",
+          },
+        ]}
+      >
+        <Text style={[styles.label, { color: isDark ? "#94A3B8" : "#64748B" }]}>
+          Permissions
+        </Text>
+        <Text style={[styles.value, { color: isDark ? "#F8FAFC" : "#0F172A" }]}>
+          No device permissions required.
+        </Text>
+      </View>
+      <Pressable
+        style={[
+          styles.resetButton,
+          { backgroundColor: isDark ? "#DC2626" : "#EF4444" },
+        ]}
+        onPress={handleReset}
+      >
         <Text style={styles.resetText}>Reset all data</Text>
       </Pressable>
     </View>
@@ -87,7 +132,7 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 24,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   subtitle: {
     marginTop: 6,
@@ -98,7 +143,7 @@ const styles = StyleSheet.create({
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
-    shadowColor: '#000000',
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -106,22 +151,22 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 12,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.6,
   },
   value: {
     marginTop: 8,
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   resetButton: {
     marginTop: 20,
     borderRadius: 14,
     paddingVertical: 14,
-    alignItems: 'center',
+    alignItems: "center",
   },
   resetText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
+    color: "#FFFFFF",
+    fontWeight: "700",
   },
 });

@@ -1,30 +1,55 @@
-import { Link } from 'expo-router';
-import { useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { Link } from "expo-router";
+import { useCallback, useMemo, useState } from "react";
+import {
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 
-import HabitItem from '@/components/HabitItem';
-import { useColorScheme } from '@/hooks/use-color-scheme';
-import { loadHabits, saveHabits } from '@/storage/habitStorage';
-import { Habit } from '@/types/habit';
-import { calculateStreaks, formatFriendlyDate, getTodayString, toggleDateCompletion } from '@/utils/habitUtils';
+import HabitItem from "@/components/HabitItem";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import {
+  loadDailyNote,
+  loadHabits,
+  saveDailyNote,
+  saveHabits,
+} from "@/storage/habitStorage";
+import { Habit } from "@/types/habit";
+import {
+  calculateStreaks,
+  formatFriendlyDate,
+  getTodayString,
+  toggleDateCompletion,
+} from "@/utils/habitUtils";
 
 export default function DashboardScreen() {
   const colorScheme = useColorScheme();
-  const isDark = colorScheme === 'dark';
+  const isDark = colorScheme === "dark";
   const [habits, setHabits] = useState<Habit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [dailyNote, setDailyNote] = useState("");
+  const [isSavingNote, setIsSavingNote] = useState(false);
 
   const today = useMemo(() => getTodayString(), []);
   const totalHabits = habits.length;
-  const completedCount = habits.filter((habit) => habit.completedDates.includes(today)).length;
+  const completedCount = habits.filter((habit) =>
+    habit.completedDates.includes(today),
+  ).length;
   const progress = totalHabits ? completedCount / totalHabits : 0;
 
   const refreshHabits = useCallback(async () => {
-    const stored = await loadHabits();
-    setHabits(stored);
+    const [storedHabits, storedDailyNote] = await Promise.all([
+      loadHabits(),
+      loadDailyNote(today),
+    ]);
+    setHabits(storedHabits);
+    setDailyNote(storedDailyNote);
     setIsLoading(false);
-  }, []);
+  }, [today]);
 
   useFocusEffect(
     useCallback(() => {
@@ -34,22 +59,38 @@ export default function DashboardScreen() {
 
   const handleToggle = async (habit: Habit) => {
     const updatedHabit = toggleDateCompletion(habit, today);
-    const updatedHabits = habits.map((item) => (item.id === habit.id ? updatedHabit : item));
+    const updatedHabits = habits.map((item) =>
+      item.id === habit.id ? updatedHabit : item,
+    );
     setHabits(updatedHabits);
     await saveHabits(updatedHabits);
+  };
+
+  const handleSaveDailyNote = async () => {
+    setIsSavingNote(true);
+    await saveDailyNote(today, dailyNote);
+    const savedNote = await loadDailyNote(today);
+    setDailyNote(savedNote);
+    setIsSavingNote(false);
   };
 
   return (
     <ScrollView
       contentContainerStyle={[
         styles.container,
-        { backgroundColor: isDark ? '#020617' : '#F8FAFC' },
+        { backgroundColor: isDark ? "#020617" : "#F8FAFC" },
       ]}
     >
       <View style={styles.header}>
         <View>
-          <Text style={[styles.title, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>Today</Text>
-          <Text style={[styles.subtitle, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+          <Text
+            style={[styles.title, { color: isDark ? "#F8FAFC" : "#0F172A" }]}
+          >
+            Today
+          </Text>
+          <Text
+            style={[styles.subtitle, { color: isDark ? "#94A3B8" : "#64748B" }]}
+          >
             {formatFriendlyDate(new Date())}
           </Text>
         </View>
@@ -57,12 +98,14 @@ export default function DashboardScreen() {
           style={[
             styles.pill,
             {
-              backgroundColor: isDark ? '#111827' : '#E2E8F0',
-              borderColor: isDark ? '#1F2937' : '#CBD5F5',
+              backgroundColor: isDark ? "#111827" : "#E2E8F0",
+              borderColor: isDark ? "#1F2937" : "#CBD5F5",
             },
           ]}
         >
-          <Text style={[styles.pillText, { color: isDark ? '#E2E8F0' : '#334155' }]}>
+          <Text
+            style={[styles.pillText, { color: isDark ? "#E2E8F0" : "#334155" }]}
+          >
             {completedCount}/{totalHabits} done
           </Text>
         </View>
@@ -72,28 +115,100 @@ export default function DashboardScreen() {
         style={[
           styles.summaryCard,
           {
-            backgroundColor: isDark ? '#0B1220' : '#FFFFFF',
-            borderColor: isDark ? '#1E293B' : '#E2E8F0',
+            backgroundColor: isDark ? "#0B1220" : "#FFFFFF",
+            borderColor: isDark ? "#1E293B" : "#E2E8F0",
           },
         ]}
       >
-        <Text style={[styles.summaryTitle, { color: isDark ? '#F8FAFC' : '#0F172A' }]}>
-          Today's focus
+        <Text
+          style={[
+            styles.summaryTitle,
+            { color: isDark ? "#F8FAFC" : "#0F172A" },
+          ]}
+        >
+          Focus for today
         </Text>
-        <Text style={[styles.summarySubtitle, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+        <Text
+          style={[
+            styles.summarySubtitle,
+            { color: isDark ? "#94A3B8" : "#64748B" },
+          ]}
+        >
           Keep your streaks alive by completing the essentials.
         </Text>
-        <View style={[styles.progressTrack, { backgroundColor: isDark ? '#111827' : '#E2E8F0' }]}>
+        <View
+          style={[
+            styles.progressTrack,
+            { backgroundColor: isDark ? "#111827" : "#E2E8F0" },
+          ]}
+        >
           <View
             style={[
               styles.progressFill,
               {
                 width: `${Math.round(progress * 100)}%`,
-                backgroundColor: isDark ? '#38BDF8' : '#2563EB',
+                backgroundColor: isDark ? "#38BDF8" : "#2563EB",
               },
             ]}
           />
         </View>
+      </View>
+
+      <View
+        style={[
+          styles.noteCard,
+          {
+            backgroundColor: isDark ? "#0B1220" : "#FFFFFF",
+            borderColor: isDark ? "#1E293B" : "#E2E8F0",
+          },
+        ]}
+      >
+        <Text
+          style={[styles.noteTitle, { color: isDark ? "#F8FAFC" : "#0F172A" }]}
+        >
+          Daily reflection
+        </Text>
+        <Text
+          style={[
+            styles.noteSubtitle,
+            { color: isDark ? "#94A3B8" : "#64748B" },
+          ]}
+        >
+          Capture a quick thought for today. It stays on this device and needs
+          no extra permissions.
+        </Text>
+        <TextInput
+          style={[
+            styles.noteInput,
+            {
+              color: isDark ? "#F8FAFC" : "#0F172A",
+              borderColor: isDark ? "#1F2937" : "#CBD5F5",
+              backgroundColor: isDark ? "#020617" : "#F8FAFC",
+            },
+          ]}
+          multiline
+          textAlignVertical="top"
+          numberOfLines={4}
+          value={dailyNote}
+          onChangeText={setDailyNote}
+          placeholder="Write a win, lesson, or reminder for later."
+          placeholderTextColor={isDark ? "#64748B" : "#94A3B8"}
+        />
+        <Pressable
+          style={[
+            styles.noteButton,
+            {
+              backgroundColor: isDark ? "#38BDF8" : "#2563EB",
+              opacity: isSavingNote ? 0.7 : 1,
+            },
+          ]}
+          onPress={handleSaveDailyNote}
+          disabled={isSavingNote}
+        >
+          <Text style={styles.noteButtonText}>
+            {isSavingNote ? "Saving..." : "Save reflection"}
+          </Text>
+        </Pressable>
       </View>
 
       <View style={styles.navRow}>
@@ -102,9 +217,9 @@ export default function DashboardScreen() {
           style={[
             styles.navLink,
             {
-              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
-              borderColor: isDark ? '#1E293B' : '#E2E8F0',
-              color: isDark ? '#E2E8F0' : '#0F172A',
+              backgroundColor: isDark ? "#0F172A" : "#FFFFFF",
+              borderColor: isDark ? "#1E293B" : "#E2E8F0",
+              color: isDark ? "#E2E8F0" : "#0F172A",
             },
           ]}
         >
@@ -115,9 +230,9 @@ export default function DashboardScreen() {
           style={[
             styles.navLink,
             {
-              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
-              borderColor: isDark ? '#1E293B' : '#E2E8F0',
-              color: isDark ? '#E2E8F0' : '#0F172A',
+              backgroundColor: isDark ? "#0F172A" : "#FFFFFF",
+              borderColor: isDark ? "#1E293B" : "#E2E8F0",
+              color: isDark ? "#E2E8F0" : "#0F172A",
             },
           ]}
         >
@@ -128,9 +243,9 @@ export default function DashboardScreen() {
           style={[
             styles.navLink,
             {
-              backgroundColor: isDark ? '#0F172A' : '#FFFFFF',
-              borderColor: isDark ? '#1E293B' : '#E2E8F0',
-              color: isDark ? '#E2E8F0' : '#0F172A',
+              backgroundColor: isDark ? "#0F172A" : "#FFFFFF",
+              borderColor: isDark ? "#1E293B" : "#E2E8F0",
+              color: isDark ? "#E2E8F0" : "#0F172A",
             },
           ]}
         >
@@ -139,20 +254,32 @@ export default function DashboardScreen() {
       </View>
 
       {isLoading ? (
-        <Text style={[styles.emptyText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+        <Text
+          style={[styles.emptyText, { color: isDark ? "#94A3B8" : "#64748B" }]}
+        >
           Loading habits...
         </Text>
       ) : habits.length === 0 ? (
-        <Text style={[styles.emptyText, { color: isDark ? '#94A3B8' : '#64748B' }]}>
+        <Text
+          style={[styles.emptyText, { color: isDark ? "#94A3B8" : "#64748B" }]}
+        >
           No habits yet. Add one to get started.
         </Text>
       ) : (
         <>
-          <Text style={[styles.sectionLabel, { color: isDark ? '#CBD5F5' : '#64748B' }]}>
-            Today's habits
+          <Text
+            style={[
+              styles.sectionLabel,
+              { color: isDark ? "#CBD5F5" : "#64748B" },
+            ]}
+          >
+            Habits for today
           </Text>
           {habits.map((habit) => {
-            const { currentStreak, longestStreak } = calculateStreaks(habit.completedDates, today);
+            const { currentStreak, longestStreak } = calculateStreaks(
+              habit.completedDates,
+              today,
+            );
             return (
               <HabitItem
                 key={habit.id}
@@ -173,17 +300,17 @@ export default function DashboardScreen() {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    minHeight: '100%',
+    minHeight: "100%",
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 20,
   },
   title: {
     fontSize: 32,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   subtitle: {
     marginTop: 6,
@@ -197,14 +324,14 @@ const styles = StyleSheet.create({
   },
   pillText: {
     fontSize: 12,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   summaryCard: {
     borderRadius: 18,
     padding: 16,
     borderWidth: 1,
     marginBottom: 16,
-    shadowColor: '#000000',
+    shadowColor: "#000000",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
     shadowRadius: 12,
@@ -212,7 +339,7 @@ const styles = StyleSheet.create({
   },
   summaryTitle: {
     fontSize: 18,
-    fontWeight: '700',
+    fontWeight: "700",
   },
   summarySubtitle: {
     marginTop: 6,
@@ -222,29 +349,68 @@ const styles = StyleSheet.create({
     marginTop: 12,
     height: 8,
     borderRadius: 999,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   progressFill: {
-    height: '100%',
+    height: "100%",
     borderRadius: 999,
   },
+  noteCard: {
+    borderRadius: 18,
+    padding: 16,
+    borderWidth: 1,
+    marginBottom: 16,
+    shadowColor: "#000000",
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  noteTitle: {
+    fontSize: 18,
+    fontWeight: "700",
+  },
+  noteSubtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    lineHeight: 20,
+  },
+  noteInput: {
+    minHeight: 110,
+    marginTop: 14,
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 12,
+    fontSize: 15,
+  },
+  noteButton: {
+    marginTop: 12,
+    alignSelf: "flex-start",
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  noteButtonText: {
+    color: "#FFFFFF",
+    fontWeight: "700",
+  },
   navRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     gap: 16,
     marginBottom: 20,
   },
   navLink: {
     fontSize: 14,
-    fontWeight: '600',
+    fontWeight: "600",
     paddingHorizontal: 14,
     paddingVertical: 8,
     borderRadius: 999,
     borderWidth: 1,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   sectionLabel: {
     fontSize: 12,
-    textTransform: 'uppercase',
+    textTransform: "uppercase",
     letterSpacing: 0.8,
     marginBottom: 12,
   },
